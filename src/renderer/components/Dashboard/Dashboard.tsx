@@ -1,5 +1,5 @@
 import { Button, Space } from 'antd';
-import './index.scss';
+import './Dashboard.scss';
 
 export default function Dashboard() {
   const getDeviceList = () => {

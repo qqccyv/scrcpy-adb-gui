@@ -64,7 +64,7 @@ const createWindow = async () => {
 
   const adb = new Adb();
 
-  adb.getDevicesList().execute();
+  adb.getDeviceList();
 
   const RESOURCES_PATH = app.isPackaged
     ? path.join(process.resourcesPath, 'assets')
