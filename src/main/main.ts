@@ -62,9 +62,6 @@ const createWindow = async () => {
   //   await installExtensions();
   // }
 
-
-
-
   const RESOURCES_PATH = app.isPackaged
     ? path.join(process.resourcesPath, 'assets')
     : path.join(__dirname, '../../assets');
@@ -79,12 +76,14 @@ const createWindow = async () => {
     height: 728,
     icon: getAssetPath('icon.png'),
     webPreferences: {
+      devTools: true,
       preload: app.isPackaged
         ? path.join(__dirname, 'preload.js')
         : path.join(__dirname, '../../.erb/dll/preload.js'),
     },
   });
-  new AdbEventManager(mainWindow)
+  // eslint-disable-next-line
+  new AdbEventManager(mainWindow);
   mainWindow.loadURL(resolveHtmlPath('index.html'));
 
   mainWindow.on('ready-to-show', () => {
@@ -104,6 +103,12 @@ const createWindow = async () => {
 
   const menuBuilder = new MenuBuilder(mainWindow);
   menuBuilder.buildMenu();
+
+  mainWindow.webContents.on('did-finish-load', () => {
+    if (!app.isPackaged) {
+      mainWindow?.webContents.openDevTools({ mode: 'detach' });
+    }
+  });
 
   // Open urls in the user's browser
   mainWindow.webContents.setWindowOpenHandler((edata) => {

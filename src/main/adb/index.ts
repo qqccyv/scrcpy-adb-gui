@@ -1,12 +1,8 @@
 import { exec } from 'child_process';
-import AbsAdb from './absAdb';
+import { DeviceInfo } from 'renderer/core/types/device';
+import AbsAdb from './AbsAdb';
 
-interface DeviceInfo {
-  serial: string;
-  state: 'device' | 'offline' | 'unauthorized' | 'unknown';
-}
-
- class Adb extends AbsAdb {
+class Adb extends AbsAdb {
   public async getDeviceList(): Promise<DeviceInfo[]> {
     try {
       const output = await this.executeCommand('devices');
@@ -18,7 +14,6 @@ interface DeviceInfo {
           const [serial, state] = line.trim().split(/\s+/);
           return { serial, state: state as DeviceInfo['state'] };
         });
-      console.log('devices', devices);
 
       return devices;
     } catch (error) {
@@ -143,6 +138,7 @@ interface DeviceInfo {
     }
   }
 
+  // eslint-disable-next-line class-methods-use-this
   private async executeCommand(command: string): Promise<string> {
     return new Promise<string>((resolve, reject) => {
       exec(`adb ${command}`, (error, stdout, stderr) => {
@@ -158,5 +154,5 @@ interface DeviceInfo {
   }
 }
 
-const INSTANCE = new Adb()
-export default INSTANCE
+const INSTANCE = new Adb();
+export default INSTANCE;
