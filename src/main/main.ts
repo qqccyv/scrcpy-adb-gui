@@ -14,7 +14,7 @@ import { app, BrowserWindow, shell, ipcMain } from 'electron';
 // import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
-import Adb from './adb';
+import AdbEventManager from './event/adbEventManager';
 
 // class AppUpdater {
 //   constructor() {
@@ -62,9 +62,8 @@ const createWindow = async () => {
   //   await installExtensions();
   // }
 
-  const adb = new Adb();
 
-  adb.getDeviceList();
+
 
   const RESOURCES_PATH = app.isPackaged
     ? path.join(process.resourcesPath, 'assets')
@@ -85,7 +84,7 @@ const createWindow = async () => {
         : path.join(__dirname, '../../.erb/dll/preload.js'),
     },
   });
-
+  new AdbEventManager(mainWindow)
   mainWindow.loadURL(resolveHtmlPath('index.html'));
 
   mainWindow.on('ready-to-show', () => {

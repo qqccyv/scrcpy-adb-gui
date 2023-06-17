@@ -6,7 +6,7 @@ interface DeviceInfo {
   state: 'device' | 'offline' | 'unauthorized' | 'unknown';
 }
 
-export default class Adb extends AbsAdb {
+ class Adb extends AbsAdb {
   public async getDeviceList(): Promise<DeviceInfo[]> {
     try {
       const output = await this.executeCommand('devices');
@@ -143,7 +143,6 @@ export default class Adb extends AbsAdb {
     }
   }
 
-  // eslint-disable-next-line class-methods-use-this
   private async executeCommand(command: string): Promise<string> {
     return new Promise<string>((resolve, reject) => {
       exec(`adb ${command}`, (error, stdout, stderr) => {
@@ -158,3 +157,6 @@ export default class Adb extends AbsAdb {
     });
   }
 }
+
+const INSTANCE = new Adb()
+export default INSTANCE
