@@ -1,6 +1,6 @@
 import { Button, Space, Divider, Dropdown, MenuProps } from 'antd';
 import './Dashboard.scss';
-import { useState } from 'react';
+import { useState,useEffect } from 'react';
 import adbHandlerManager from '../../core/adb/adbManager';
 import { DeviceInfo } from '../../core/types/device';
 type DeviceItemType = {
@@ -10,6 +10,10 @@ type DeviceItemType = {
 export default function Dashboard() {
   const [deviceList, setDeviceList] = useState<DeviceItemType[]>([]);
   const [currentDevice, setCurrentDevice] = useState<DeviceItemType>();
+
+  useEffect(() => {
+    if(deviceList.length === 1) setCurrentDevice(deviceList[0])
+  }, [deviceList])
 
   const getDeviceList = async () => {
     const devices: DeviceInfo[] = await adbHandlerManager.getDeviceList();
@@ -21,7 +25,7 @@ export default function Dashboard() {
         };
       })
     );
-    if(deviceList.length === 1) setCurrentDevice(deviceList[0])
+
     console.log('deviceList', deviceList);
   };
 
