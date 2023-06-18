@@ -3,13 +3,14 @@ import './Dashboard.scss';
 import { useState } from 'react';
 import adbHandlerManager from '../../core/adb/adbManager';
 import { DeviceInfo } from '../../core/types/device';
-
+type DeviceItemType = {
+  key:string,
+  label:string
+}
 export default function Dashboard() {
-  const [deviceList, setDeviceList] = useState<MenuProps['items']>([]);
-  const [currentDevice, setCurrentDevice] = useState<{
-    key: string;
-    label: string;
-  }>();
+  const [deviceList, setDeviceList] = useState<DeviceItemType[]>([]);
+  const [currentDevice, setCurrentDevice] = useState<DeviceItemType>();
+
   const getDeviceList = async () => {
     const devices: DeviceInfo[] = await adbHandlerManager.getDeviceList();
     setDeviceList(
@@ -20,8 +21,19 @@ export default function Dashboard() {
         };
       })
     );
+    if(deviceList.length === 1) setCurrentDevice(deviceList[0])
     console.log('deviceList', deviceList);
   };
+
+  const installApk = async () => {
+    if(!currentDevice) return
+    adbHandlerManager.inStallApk(currentDevice.key)
+  }
+
+  const getRunningActivity = async () => {
+    if(!currentDevice) return
+    adbHandlerManager.getRunningActivity(currentDevice.key)
+  }
 
   return (
     <div className="module">
@@ -34,11 +46,20 @@ export default function Dashboard() {
         <Dropdown
           menu={{
             items: deviceList,
+            onClick: ({key}) => {
+              setCurrentDevice(deviceList.find(device=>device.key===key))
+            }
           }}
           placement="topLeft"
         >
-          <Button>{currentDevice ? currentDevice.label : '选择设备'}</Button>
+          <Button>{currentDevice ? currentDevice.label : '请先初始化设备列表'}</Button>
         </Dropdown>
+        <Button onClick={installApk} type="primary">
+          安装Apk
+        </Button>
+        <Button onClick={getRunningActivity} type="primary">
+          获取活动页
+        </Button>
       </Space>
     </div>
   );

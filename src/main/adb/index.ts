@@ -1,8 +1,12 @@
 import { exec } from 'child_process';
+import { dialog } from 'electron';
 import { DeviceInfo } from 'renderer/core/types/device';
 import AbsAdb from './AbsAdb';
 
 class Adb extends AbsAdb {
+
+
+
   public async getDeviceList(): Promise<DeviceInfo[]> {
     try {
       const output = await this.executeCommand('devices');
@@ -17,6 +21,8 @@ class Adb extends AbsAdb {
 
       return devices;
     } catch (error) {
+
+      this.errorTips('Error getting device list',error)
       console.error(`Error getting device list: ${error}`);
       throw error;
     }
@@ -27,6 +33,7 @@ class Adb extends AbsAdb {
       const output = await this.executeCommand(`-s ${serial} get-state`);
       return output.trim() === 'device';
     } catch (error) {
+      this.errorTips('Error checking device state',error)
       console.error(`Error checking device state: ${error}`);
       throw error;
     }
@@ -34,8 +41,9 @@ class Adb extends AbsAdb {
 
   public async installApk(serial: string, apkPath: string): Promise<void> {
     try {
-      await this.executeCommand(`-s ${serial} install "${apkPath}"`);
+    await this.executeCommand(`-s ${serial} install "${apkPath}"`);
     } catch (error) {
+      this.errorTips('Error installing APK',error)
       console.error(`Error installing APK: ${error}`);
       throw error;
     }
@@ -48,6 +56,7 @@ class Adb extends AbsAdb {
     try {
       await this.executeCommand(`-s ${serial} uninstall "${packageName}"`);
     } catch (error) {
+      this.errorTips('Error uninstalling app',error)
       console.error(`Error uninstalling app: ${error}`);
       throw error;
     }
@@ -60,6 +69,7 @@ class Adb extends AbsAdb {
     try {
       await this.executeCommand(`-s ${serial} shell pm clear "${packageName}"`);
     } catch (error) {
+      this.errorTips('Error clearing app data',error)
       console.error(`Error clearing app data: ${error}`);
       throw error;
     }
@@ -83,6 +93,7 @@ class Adb extends AbsAdb {
         focusedAppLine?.match(/mFocusedApp=.*\{(.*?)\}/)?.[1] ?? '';
       return currentFocus || focusedApp;
     } catch (error) {
+      this.errorTips('Error getting running activity',error)
       console.error(`Error getting running activity: ${error}`);
       throw error;
     }
@@ -102,6 +113,7 @@ class Adb extends AbsAdb {
       );
       return services;
     } catch (error) {
+      this.errorTips('Error getting running services',error)
       console.error(`Error getting running services: ${error}`);
       throw error;
     }
@@ -117,6 +129,7 @@ class Adb extends AbsAdb {
       );
       return output;
     } catch (error) {
+      this.errorTips('Error getting app details',error)
       console.error(`Error getting app details: ${error}`);
       throw error;
     }
@@ -133,6 +146,7 @@ class Adb extends AbsAdb {
       const path = output.trim().split(':')[1];
       return path;
     } catch (error) {
+      this.errorTips('Error getting app install path',error)
       console.error(`Error getting app install path: ${error}`);
       throw error;
     }
@@ -151,6 +165,10 @@ class Adb extends AbsAdb {
         }
       });
     });
+  }
+
+  private errorTips(title:string,content:any){
+    dialog.showErrorBox('adb命令执行错误:'+title,JSON.stringify(content))
   }
 }
 
